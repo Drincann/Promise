@@ -1,0 +1,17 @@
+{
+  "name": "promise",
+  "version": "1.0.0",
+  "description": "Promise 实现。",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc index.ts --outDir dist"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^4.6.4"
+  },
+  "dependencies": {
+    "@types/node": "^17.0.31"
+  }
+}
