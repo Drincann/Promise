@@ -4,14 +4,15 @@
   "description": "Promise 实现。",
   "main": "index.js",
   "scripts": {
-    "build": "tsc index.ts --outDir dist"
+    "build": "tsc index.ts --outDir dist",
+    "test": "mocha test/resolver-tests.js --timeout 200 --slow 999999"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/node": "^17.0.31",
+    "better-assert": "^1.0.2",
+    "mocha": "^10.0.0",
     "typescript": "^4.6.4"
-  },
-  "dependencies": {
-    "@types/node": "^17.0.31"
   }
 }
