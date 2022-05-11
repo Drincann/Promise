@@ -47,6 +47,37 @@ class MyPromise {
     this._fulfill(value)
   }
 
+
+  static resolve(value) {
+    return new Promise((resolve, _) => resolve(value));
+  }
+
+
+  static all(promises /* any iterable */) {
+    promises = Array.from(promises);
+    if (promises.length === 0) return MyPromise.resolve([]);
+    let rest = promises.length;
+    const results = new Array(rest).fill(undefined);
+    return new MyPromise((resolve, reject) => {
+      promises.forEach((promise, index) => {
+        if (promise?.then !== MyPromise.prototype.then) {
+          if (typeof promise?.then !== 'function') {
+            throw new Error('不是有效的 thenable');
+          }
+          promise = new MyPromise(promise.then);
+        }
+        promise.then(promise.then(value => {
+          results[index] = value;
+          if (--rest == 0) {
+            resolve(results);
+          }
+        }, err => {
+          reject(err);
+        }));
+      });
+    });
+  }
+
   then(onFulfilled, onRejected) {
     return new MyPromise((fulfill, reject) => {
       // wait current promise fulfilled
