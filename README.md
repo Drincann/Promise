@@ -3,7 +3,7 @@
 Promise 实现。
 
 - [x] Promise.all()
-- [ ] Promise.race()
+- [x] Promise.race()
 - [x] Promise.resolve()
 - [ ] Promise.reject()
 - [ ] Promise.allSettled()
