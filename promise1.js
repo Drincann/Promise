@@ -1,23 +1,24 @@
 class MyPromise {
-
   _state = 'pending'; // 'fulfilled' 'rejected'
   _value = null;
   _callbacks = []; // { onFulfilled: (value: any) => void, onRejected: (error: any) => void}[]
+  constructor(resolver) {
+    if (typeof resolver !== 'function') throw TypeError();
+    this._callResolver(resolver, this._resolveDFS.bind(this), this._reject.bind(this))
+  }
+
   _fulfill(value) {
     this._value = value;
     this._state = 'fulfilled';
-    this._callbacks.forEach(callback => callback.onFulfilled?.(this._value));
-    this._callbacks = null; // callback only called once
-  }
-  _reject(error) {
-    this._value = error;
-    this._state = 'rejected';
-    this._callbacks.forEach(callback => callback.onRejected?.(this._value));
+    this._callbacks?.forEach(callback => callback.onFulfilled?.(this._value));
     this._callbacks = null; // callback only called once
   }
 
-  constructor(resolver) {
-    this._callResolver(resolver, this._resolveDFS.bind(this), this._reject.bind(this))
+  _reject(error) {
+    this._value = error;
+    this._state = 'rejected';
+    this._callbacks?.forEach(callback => callback.onRejected?.(this._value));
+    this._callbacks = null; // callback only called once
   }
 
   // only called once
@@ -98,3 +99,4 @@ class MyPromise {
     });
   }
 }
+module.exports = MyPromise;

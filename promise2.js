@@ -3,32 +3,40 @@ class MyPromise {
   _value = null;      // value error 
   _callbacks = []     // { onResolved: (value) => void, onRejected: (error) => void }[]
   constructor(resolver) {
+    if (typeof resolver !== 'function') throw TypeError();
     this._runResolver(resolver);
-  }
-
-  _runResolver(resolver) {
-    let called = false;
-    resolver(value => {
-      if (called) return;
-      called = true;
-      this._resolveRec(value);
-    }, err => {
-      if (called) return;
-      called = true;
-      this._reject(err);
-    });
   }
 
   _fulfill(value) {
     this._state = 'fulfilled';
     this._value = value;
-    this._callbacks.forEach(callback => callback.onFulfilled(this._value));
+    this._callbacks?.forEach(callback => callback.onFulfilled?.(this._value));
+    this._callbacks = null;
   }
 
   _reject(error) {
     this._state = 'rejected';
     this._value = error;
-    this._callbacks.forEach(callback => callback.onRejected(this._value));
+    this._callbacks?.forEach(callback => callback.onRejected?.(this._value));
+    this._callbacks = null;
+  }
+
+  _runResolver(resolver) {
+    let called = false;
+    try {
+      resolver(value => {
+        if (called) return;
+        called = true;
+        this._resolveRec(value);
+      }, err => {
+        if (called) return;
+        called = true;
+        this._reject(err);
+      });
+    } catch (error) {
+      this._reject(error);
+    }
+
   }
 
   _resolveRec(thenable) {
@@ -42,42 +50,19 @@ class MyPromise {
   then(onFulfilled, onRejected) {
     return new MyPromise((resolve, reject) => {
       // 等待当前 promise 完成，调 on*
+      const callback = {
+        onFulfilled: () => resolve(typeof onFulfilled === 'function' ? onFulfilled(this._value) : this._value),
+        onRejected: () => resolve(typeof onRejected === 'function' ? onRejected(this._value) : this._value),
+      }
       if (this._state == 'pending') {
-        this._callbacks.push({ onFulfilled, onRejected });
+        this._callbacks.push(callback);
       } else if (this._state == 'fulfilled') {
-        resolve(onFulfilled(this._value));
+        callback.onFulfilled();
       } else if (this._state == 'rejected') {
-        resolve(onRejected(this._value));
+        callback.onRejected();
       }
     });
 
   }
 }
-
-// Obj.prototype.bind = function (self) {
-//   const method = new Symbol('method');
-//   self[method] = this;
-//   return () => self[method]();
-// }
-
-
-
-
-
-const fs = require('fs');
-
-new MyPromise((resolve, reject) => {
-  console.log(1);
-  resolve('first promise value');
-}).then(value => {
-  console.log(value);
-
-  return new MyPromise((resolve, reject) => {
-    fs.readFile('./index.js', (err, data) => {
-      if (err) reject('file io error'); else resolve('file readed')
-    });
-  });
-
-}).then(value => {
-  console.log(value);
-})
+module.exports = MyPromise;
