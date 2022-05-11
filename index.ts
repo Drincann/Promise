@@ -123,6 +123,19 @@ export class MyPromise<T = any> {
     });
   }
 
+  public static race(promises: Iterable<MyPromise> | Array<MyPromise>) {
+    const promiseList = Array.from(promises);
+    return new MyPromise((resolve, reject) => {
+      promiseList.forEach(promise => {
+        promise.then(value => {
+          resolve(value);
+        }, err => {
+          reject(err);
+        });
+      });
+    });
+  }
+
   public static resolve(value: any) {
     return new MyPromise((resolve, _) => resolve(value));
   }
