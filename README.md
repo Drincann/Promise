@@ -8,5 +8,5 @@ Promise 实现。
 - [ ] Promise.reject()
 - [ ] Promise.allSettled()
 - [x] Promise.prototype.then()
-- [ ] Promise.prototype.catch()
+- [x] Promise.prototype.catch()
 - [ ] Promise.prototype.finally()
